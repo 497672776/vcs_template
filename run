@@ -1,0 +1,128 @@
+#!/bin/bash
+
+
+if [ "$1" == "" ]  #帮助
+then
+    if [ -f "./vcs/file.list" -a -f "./vcs/macro.list" -a -f "./sim/dump.fsdb" ]; then
+        echo "run verdi"
+		cd sim
+        ./run_verdi.sh
+		echo "openning..........."
+        exit 0
+    fi
+    # 清除中间文件
+    cd vcs
+    mv macro.list file.list run_vcs.sh /tmp
+    rm -rf *
+    mv /tmp/macro.list /tmp/file.list /tmp/run_vcs.sh .
+    cd ../sim
+    mv run_simv.sh run_verdi.sh wave_gen.tcl verdiLog /tmp
+    rm -rf *
+    mv /tmp/run_simv.sh /tmp/run_verdi.sh /tmp/wave_gen.tcl /tmp/verdiLog .
+    cd ..
+    echo "note:clean success!"
+
+    # 跑代码
+    echo "run vcs"
+    cd vcs
+    ./run_vcs.sh
+    echo "run sim"
+    cd ../sim
+    ./run_simv.sh
+    echo "run verdi"
+    ./run_verdi.sh
+    exit 0
+fi
+
+
+# 仿真脚本
+if [ "$1" == "-h" ]  #帮助
+then
+    echo "  Usage: run [para] <string>"
+    echo "  run -h          显示帮助"
+    echo "  run             开始跑仿真,之前有就拿之前的仿真波形"
+    echo "  run -r          刷新仿真数据, 不再重新开启新的wave"
+    echo "  run -start      如果你改了代码,想刷新仿真数据，又想显示波形,用这个"
+    echo "  run -clean      删除中间文件"
+    exit 0
+fi
+
+#==============================================================================
+#当仿真参数是 -clear时删除仿真数据
+if [ "$1" == "-clean" ]
+then
+    cd vcs
+    mv macro.list file.list run_vcs.sh /tmp
+    rm -rf *
+    mv /tmp/macro.list /tmp/file.list /tmp/run_vcs.sh .
+    cd ../sim
+    mv run_simv.sh run_verdi.sh wave_gen.tcl verdiLog /tmp
+    rm -rf *
+    mv /tmp/run_simv.sh /tmp/run_verdi.sh /tmp/wave_gen.tcl /tmp/verdiLog .
+    cd ..
+    echo "note:clean success!"
+    exit 0
+fi
+
+#==============================================================================
+#当仿真参数是 -clear时删除仿真数据
+if [ "$1" == "-start" ]
+then
+    # 清除中间文件
+    cd vcs
+    mv macro.list file.list run_vcs.sh /tmp
+    rm -rf *
+    mv /tmp/macro.list /tmp/file.list /tmp/run_vcs.sh .	
+    cd ../sim
+    mv run_simv.sh run_verdi.sh wave_gen.tcl verdiLog /tmp
+    rm -rf *
+    mv /tmp/run_simv.sh /tmp/run_verdi.sh /tmp/wave_gen.tcl /tmp/verdiLog .
+    cd ..
+    echo "note:clean success!"
+
+    # 跑代码
+    echo "run vcs"
+    cd vcs
+    ./run_vcs.sh
+    echo "run sim"
+    cd ../sim
+    ./run_simv.sh
+    echo "run verdi"
+    ./run_verdi.sh
+    exit 0
+fi
+
+#==============================================================================
+#当仿真参数是 -r时只更新数据, 不在新开启gtkwave
+if [ "$1" == "-r" ]  
+then
+    
+    # 清除中间文件
+    cd vcs
+    mv macro.list file.list run_vcs.sh /tmp
+    rm -rf *
+    mv /tmp/macro.list /tmp/file.list /tmp/run_vcs.sh .
+    cd ../sim
+    mv run_simv.sh run_verdi.sh wave_gen.tcl verdiLog /tmp
+    rm -rf *
+    mv /tmp/run_simv.sh /tmp/run_verdi.sh /tmp/wave_gen.tcl /tmp/verdiLog .
+    cd ..
+    echo "note:clean success!"
+
+    # 跑代码，但是不跑最后一条显示界面的命令
+    echo "run vcs"
+    cd vcs
+    ./run_vcs.sh
+    echo "run sim"
+    cd ../sim
+    ./run_simv.sh
+
+    echo ""
+    echo "note:rebuild success!"
+    echo -e "\033[36mplease reload wave in gtkwave!\033[0m"
+    echo ""
+    exit 0
+fi
+
+#==============================================================================
+exit 0
